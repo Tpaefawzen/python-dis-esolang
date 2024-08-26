@@ -1,9 +1,13 @@
 """
-Implementation of esoteric language Dis, Malbolge's wimpmode
+Implementation of esoteric language Dis; Malbolge's wimpmode
+
+The I/O is done through sys.stdin and sys.stdout in binary mode (not in Unicode mode).
 """
 
 import sys
+import re
 
+_SPACES = " \t\n"
 _VALID_COMMANDS = "*^>|}{!_"
 _COMMENT_BEGIN = "("
 _COMMENT_END = ")"
@@ -22,9 +26,12 @@ class Dis:
         self.__mem: list[int] = []
 
         while src:
-            c, *src = src
+            c = src[0]
+            src = src[1:]
             if c in _VALID_COMMANDS:
-                self.__mem.push(ord(c))
+                self.__mem.append(ord(c))
+            elif c in _SPACES:
+                pass
             elif c == _COMMENT_BEGIN:
                 commend_ends_at = src.find(_COMMENT_END)
                 if commend_ends_at == -1:
@@ -49,6 +56,10 @@ class Dis:
         self.__halt = False
         self.__wantinput = False
         self.__eof = False
+
+    @property
+    def halt(self):
+        return self.__halt
 
     def run(self) -> None:
         """
